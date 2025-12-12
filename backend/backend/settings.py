@@ -15,13 +15,9 @@ from datetime import timedelta
 import os
 
 # load .env when available (python-dotenv)
-try:
-    from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-    load_dotenv()
-except Exception:
-    # python-dotenv not installed or .env missing — environment variables will still be read from OS
-    pass
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -104,30 +100,14 @@ WSGI_APPLICATION = "backend.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PWD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
-
-# If DB environment variables are supplied, prefer them (Postgres) — useful in production
-db_name = os.getenv("DB_NAME")
-db_pwd = os.getenv("DB_PWD")
-
-# Only switch to Postgres if both DB name and password are set (prevents accidental
-# attempts to connect to an incomplete remote config). You can still use a
-# full DATABASE_URL in your environment if you prefer (I can add parsing for
-# DATABASE_URL later).
-if db_name and db_pwd:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": db_name,
-            "USER": os.getenv("DB_USER"),
-            "PASSWORD": db_pwd,
-            "HOST": os.getenv("DB_HOST", "localhost"),
-            "PORT": os.getenv("DB_PORT", "5432"),
-        }
-    }
 
 
 # Password validation
